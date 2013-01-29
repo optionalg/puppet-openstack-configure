@@ -25,15 +25,16 @@ Firewall
 --------
 Allow connectivity on Puppet, OpenStack and third party service ports.
 
-(EC2 -> Network & Security ->Elastic IPs)
-Assigned Elastic IP address to controller: <IP address>
+* (EC2 -> Network & Security ->Elastic IPs)
+Assigned Elastic IP address to controller: X.X.X.X
 
-(EC2 -> Network & Security -> Security Groups)
-Allowed incoming connections to port 8774 from any IP address.
-Allowed incoming connections to ports 1-65535 from 10.0.0.0/8 subnet.
+* (EC2 -> Network & Security -> Security Groups)
+    - Allowed incoming connections to port 8774 from any IP address.
+    - Allowed incoming connections to ports 1-65535 from 10.0.0.0/8 subnet.
 
 TODO: automate this process
-FIXME: fix connectivity between controller and instances running on compute nodes
+
+FIXME: connectivity between controller and instances
 
 VPC
 ---
@@ -61,7 +62,8 @@ Sample output (compute node): http://pastebin.com/LAMKXPuu
 Verify the setup
 ================
 
-* On controller:
+Command-line
+------------
 
     root@openstack-puppet-controller:~# nova-manage service list
     Binary           Host                                 Zone             Status     State Updated_At
@@ -75,7 +77,8 @@ Verify the setup
     nova-network     openstack-puppet-compute3.ec2.internal nova             enabled    :-)   2013-01-08 02:10:59
     nova-compute     openstack-puppet-compute3.ec2.internal nova             enabled    :-)   2013-01-08 02:10:59
 
-* Horizon web dashboard
+Horizon web dashboard
+---------------------
 
 Check credentials in /root/openrc
 
