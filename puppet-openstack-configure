@@ -55,7 +55,7 @@ msg "Setting hostname: $hostname"
 hostname $hostname
 echo $(hostname) > /etc/hostname
 grep -q $hostname /etc/hosts || echo "127.0.0.1 $(hostname)" >> /etc/hosts
-grep -q $controller_ip /etc/hosts || echo "$controller_ip $controller_host" >> /etc/hosts
+grep -q $controller_host /etc/hosts || echo "$controller_ip $controller_host" >> /etc/hosts
 
 msg "Adding repository: PuppetLabs"
 if ! dpkg -s puppetlabs-release &>/dev/null; then
