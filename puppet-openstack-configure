@@ -1,0 +1,76 @@
+#!/bin/bash
+
+hostname=$1
+controller_host=$2
+controller_ip=$3
+
+if (($#<3)); then
+    echo "usage: $0 hostname controller_host controller_ip" >&2
+    exit 1
+fi
+
+sudo hostname $hostname
+echo $(hostname) > /etc/hostname
+grep -q $hostname /etc/hosts || echo "127.0.0.1 $(hostname)" >> /etc/hosts
+grep -q $controller_ip /etc/hosts || echo "$controller_ip $controller_host" >> /etc/hosts
+
+if ! dpkg -s puppetlabs-release &>/dev/null; then
+    wget -nc -P /tmp http://apt.puppetlabs.com/puppetlabs-release-precise.deb
+    dpkg -i /tmp/puppetlabs-release-precise.deb
+fi
+
+dpkg -s ubuntu-cloud-keyring &>/dev/null || aptitude -y install ubuntu-cloud-keyring
+
+if [ ! -f /etc/apt/sources.list.d/ubuntu-cloud.list ]; then
+    cat > /etc/apt/sources.list.d/ubuntu-cloud.list << EOF
+# The primary updates archive that users should be using
+ 
+deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/folsom main
+
+# Public -proposed archive mimicking the SRU process for extended testing.
+# Packages should bake here for at least 7 days. 
+#
+#deb  http://ubuntu-cloud.archive.canonical.com/ubuntu precise-proposed/folsom main
+EOF
+    aptitude update
+fi
+
+dpkg -s git &>/dev/null || aptitude -y install git
+dpkg -s puppet &>/dev/null || aptitude -y install puppet
+
+if [[ $hostname == $controller_host ]]; then
+    dpkg -s puppetmaster &>/dev/null || aptitude -y install puppetmaster
+fi
+
+if  [ ! -d /etc/puppet/modules/openstack ]; then
+    puppet module install puppetlabs-openstack
+    mkdir -p /root/{src,backup}; cd /root/src
+    for service in mysql openstack keystone nova glance cinder horizon; do
+      git clone git://github.com/puppetlabs/puppetlabs-$service.git
+      mv -f /etc/puppet/modules/$service /root/backup
+      ln -svf $PWD/puppetlabs-$service /etc/puppet/modules/$service
+    done
+    chmod -R a+rX /root/src
+    chmod a+x /root
+    cd -
+fi
+
+if ! grep -q $controller_host /etc/puppet/puppet.conf; then
+    cat >> /etc/puppet/puppet.conf << EOF
+[agent]
+server      = $controller_host
+EOF
+fi
+
+
+if [[ $controller_host == $hostname ]]; then
+    curl -s http://pastebin.com/raw.php?i=Vu1cSi54 | tr -d '\r' > ~/site.pp
+    sed 's/^$controller_node_address.*/$controller_node_address = '"'$controller_host'/" site.pp > /etc/puppet/manifests/site.pp
+    sed -ie "s/^\$private_interface.*/\$private_interface = 'eth0'/" /etc/puppet/manifests/site.pp
+    sed -ie 's/multi_host.*/multi_host => false,/' /etc/puppet/manifests/site.pp
+fi
+
+time puppet agent -t
+
+# vim: ts=4:sw=4:et
+
