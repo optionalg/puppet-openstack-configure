@@ -9,6 +9,12 @@ if (($#<3)); then
     exit 1
 fi
 
+installpkg() {
+    if ! dpkg -s $1 &>/dev/null; then
+        sudo aptitude -y install $1
+    fi
+}
+
 sudo hostname $hostname
 echo $(hostname) > /etc/hostname
 grep -q $hostname /etc/hosts || echo "127.0.0.1 $(hostname)" >> /etc/hosts
@@ -19,7 +25,7 @@ if ! dpkg -s puppetlabs-release &>/dev/null; then
     dpkg -i /tmp/puppetlabs-release-precise.deb
 fi
 
-dpkg -s ubuntu-cloud-keyring &>/dev/null || aptitude -y install ubuntu-cloud-keyring
+installpkg ubuntu-cloud-keyring
 
 if [ ! -f /etc/apt/sources.list.d/ubuntu-cloud.list ]; then
     cat > /etc/apt/sources.list.d/ubuntu-cloud.list << EOF
@@ -35,11 +41,11 @@ EOF
     aptitude update
 fi
 
-dpkg -s git &>/dev/null || aptitude -y install git
-dpkg -s puppet &>/dev/null || aptitude -y install puppet
+installpkg git
+installpkg puppet
 
 if [[ $hostname == $controller_host ]]; then
-    dpkg -s puppetmaster &>/dev/null || aptitude -y install puppetmaster
+    installpkg puppetmaster
 fi
 
 if  [ ! -d /etc/puppet/modules/openstack ]; then
@@ -71,6 +77,18 @@ if [[ $controller_host == $hostname ]]; then
 fi
 
 time puppet agent -t
+
+if (($?=!0)); then
+    cat >&2 << "EOF"
+
+Make sure certificate is signed on Puppet agent:
+    puppet cert list
+    puppet cert sign <key>
+
+Then run on node: `sudo puppet agent -t'
+
+EOF
+fi
 
 # vim: ts=4:sw=4:et
 
