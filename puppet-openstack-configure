@@ -124,10 +124,10 @@ if [[ $controller_host == $hostname ]]; then
     echo -e '*.local\n*.internal' > /etc/puppet/autosign.conf
 fi
 
-msg "Running: Puppet agent. This may take a while"
+msg "Running puppet agent. This may take a while"
 time puppet agent -t
 
-if (($?!=0)); then
+if (($?==1)); then
     msg error "Certificate needs to be signed on Puppet master:"
     msg error "   puppet cert sign $hostname"
     msg error "Then manually trigger update: \`puppet agent -t'"
