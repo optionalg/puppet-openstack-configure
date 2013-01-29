@@ -115,10 +115,13 @@ fi
 
 
 if [[ $controller_host == $hostname ]]; then
-    curl -s http://pastebin.com/raw.php?i=Vu1cSi54 | tr -d '\r' > ~/site.pp
+    msg "Configuring: Puppet server"
+    curl https://raw.github.com/redondos/puppet-openstack-configure/master/site.pp > ~/site.pp
     sed 's/^$controller_node_address.*/$controller_node_address = '"'$controller_host'/" site.pp > /etc/puppet/manifests/site.pp
     sed -ie "s/^\$private_interface.*/\$private_interface = 'eth0'/" /etc/puppet/manifests/site.pp
-    sed -ie 's/multi_host.*/multi_host => false,/' /etc/puppet/manifests/site.pp
+    # sed -ie 's/multi_host.*/multi_host => false,/' /etc/puppet/manifests/site.pp
+    
+    echo -e '*.local\n*.internal' > /etc/puppet/autosign.conf
 fi
 
 msg "Running: Puppet agent. This may take a while"
