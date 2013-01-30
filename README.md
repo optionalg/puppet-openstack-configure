@@ -26,7 +26,7 @@ Firewall
 Allow connectivity on Puppet, OpenStack and third party service ports.
 
 * (EC2 -> Network & Security ->Elastic IPs)
-Assigned Elastic IP address to controller: X.X.X.X
+Assigned Elastic IP address to controller: [CONTROLLER_IP]
 
 * (EC2 -> Network & Security -> Security Groups)
     - Allowed incoming connections to port 8774 from any IP address.
@@ -62,8 +62,8 @@ Sample output (compute node): http://pastebin.com/LAMKXPuu
 Verify the setup
 ================
 
-Command-line
-------------
+Services
+--------
 
     root@openstack-puppet-controller:~# nova-manage service list
     Binary           Host                                 Zone             Status     State Updated_At
@@ -80,24 +80,23 @@ Command-line
 Horizon web dashboard
 ---------------------
 
-Check credentials in /root/openrc
+Check credentials in /root/openrc, by default 'admin'/'admin'
 
-Login to horizon: http://ec2-23-23-30-93.compute-1.amazonaws.com/horizon/
+Login to horizon: http://[CONTROLLER_HOSTNAME]/horizon/
 
 Sample: http://i.troll.ws/a0ab7990.png
 
 Image upload and instance creation
 ----------------------------------
 
+Script provided by Puppet recipes.
+
     wget https://raw.github.com/redondos/puppet-openstack-configure/master/test_nova.sh
     bash -x test_nova.sh
 
-(script provided by Puppet recipes)
 
 Credentials
 -----------
-
-Check they are correct, by default 'admin'/'admin'
 
     source /root/openrc
 
@@ -164,6 +163,5 @@ Spawn Ubuntu server instance
 Further reading
 ===============
 
-Sharable openstack puppet dev environment. (vagrant--virtualbox) By Dan Bode, author of OpenStack Puppet recipes.
-https://github.com/bodepd/puppetlabs-openstack_dev_env
+Sharable openstack puppet dev environment. (vagrant/virtualbox) https://github.com/bodepd/puppetlabs-openstack_dev_env
 
