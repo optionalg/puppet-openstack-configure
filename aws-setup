@@ -116,7 +116,6 @@ def main():
     vpc = check_vpc(c, vpc_ip)
     if vpc:
         info("Found a VPC on the same subnet ({}):".format(vpc_ip))
-        # FIXME: TypeError: info() takes exactly 1 argument (2 given)
         vpc_info(vpc)
         answer = raw_input("OK to reuse it? Y/n ")
         if answer.lower() == "n" or answer.lower() == "no":
@@ -167,7 +166,7 @@ def main():
             try:
                 # Try to create a new igw
                 igw = c.create_internet_gateway()
-                info("Created internet gateway: " + str(igw))
+                info("Created internet gateway: " + igw.id)
                 attachment = c.attach_internet_gateway(igw.id, vpc.id)
                 info("Attached igw to vpc: " + str(attachment))
             except Exception, e:
@@ -175,6 +174,7 @@ def main():
                 error( "".join(e[2]))
                 awserror("create or attach internet gateway")
 
+    # No error checking, assume it exists since it is created with each VPC
     routing_table = find_routing_table(c, vpc)
 
     # Create default route (via the internet gateway) if it doesn't exist already
@@ -196,8 +196,7 @@ def main():
             sg.authorize('icmp', -1, -1, '0.0.0.0/0', )
             info("Allowing incoming ICMP connections")
         except:
-            warn("Found firewall rules in security group: " + sg.id)
-            warn("Skipping.")
+            warn("Found firewall rules in security group: " + sg.id + ". Skipping")
 
 if __name__ == "__main__":
     main()
