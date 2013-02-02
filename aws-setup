@@ -195,5 +195,9 @@ def main():
         except:
             warn("Found firewall rules in security group: " + sg.id + ". Skipping")
 
+    # Run instances in VPC
+    controller = c.run_instances('ami-3d4ff254', subnet_id=s.id, key_name='redondos', instance_type='m1.medium')
+    compute1 = c.run_instances('ami-3d4ff254', subnet_id=s.id, key_name='redondos', instance_type='m1.medium')
+
 if __name__ == "__main__":
     main()
