@@ -5,7 +5,8 @@
 # - create a VPC (specified in the command-line)
 # - createa a subnet (half the size of the VPC)
 # - create and attach an internet gateway 
-# TODO: elastic ips, instance creation
+# - create controller and compute instance
+# TODO: elastic ips, flexible number of nodes
 
 import sys, os
 from boto.vpc import VPCConnection
