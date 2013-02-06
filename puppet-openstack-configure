@@ -1,4 +1,9 @@
 #!/bin/bash
+# 2013 Angelo Olivera
+#
+# Automatic deployment of OpenStack nodes using Puppet
+#
+# Supported distributions: Ubuntu 12.04/12.10
 
 installpkg() {
     if ! dpkg -s $1 &>/dev/null; then
